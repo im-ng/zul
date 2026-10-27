@@ -14,16 +14,16 @@ pub fn LockRefArenaArc(comptime T: type) type {
     // Thus, Args, more or less, FullArgs[1..], but we can't just do FullArgs[1..]
     // we need to build a new Struct.
     const FullArgs = std.meta.ArgsTuple(@TypeOf(T.init));
-    const full_fields = std.meta.fields(FullArgs);
-    const ARG_COUNT = full_fields.len;
+    const full_fields = .{ .names = @typeInfo(FullArgs).@"struct".field_names, .types = @typeInfo(FullArgs).@"struct".field_types, .attrs = @typeInfo(FullArgs).@"struct".field_attrs };
+    const ARG_COUNT = full_fields.names.len;
 
-    if (ARG_COUNT == 0 or full_fields[0].type != std.mem.Allocator) {
+    if (ARG_COUNT == 0 or full_fields.types[0] != std.mem.Allocator) {
         @compileError("The first argument to " ++ @typeName(T) ++ ".init must be an std.mem.Allocator");
     }
 
-    var arg_fields: [full_fields.len - 1]type = undefined;
-    inline for (full_fields[1..], 0..) |field, index| {
-        arg_fields[index] = field.type;
+    var arg_fields: [full_fields.names.len - 1]type = undefined;
+    inline for (full_fields.types[1..], 0..) |field, index| {
+        arg_fields[index] = field;
     }
 
     const Args = @Tuple(

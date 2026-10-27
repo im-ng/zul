@@ -17,8 +17,8 @@ pub fn expectEqual(expected: anytype, actual: anytype) !void {
             return expectStrings(expected, actual);
         },
         .@"struct" => |structType| {
-            inline for (structType.fields) |field| {
-                try expectEqual(@field(expected, field.name), @field(actual, field.name));
+            inline for (structType.field_names, structType.field_types, structType.field_attrs) |field_name, _, _| {
+                try expectEqual(@field(expected, field_name), @field(actual, field_name));
             }
             return;
         },
@@ -32,9 +32,9 @@ pub fn expectEqual(expected: anytype, actual: anytype) !void {
             const actualTag = @as(Tag, actual);
             try expectEqual(expectedTag, actualTag);
 
-            inline for (std.meta.fields(@TypeOf(actual))) |fld| {
-                if (std.mem.eql(u8, fld.name, @tagName(actualTag))) {
-                    try expectEqual(@field(expected, fld.name), @field(actual, fld.name));
+            inline for (@typeInfo(@TypeOf(actual)).@"struct".field_names, @typeInfo(@TypeOf(actual)).@"struct".field_types, @typeInfo(@TypeOf(actual)).@"struct".field_attrs) |fld_name, _, _| {
+                if (std.mem.eql(u8, fld_name, @tagName(actualTag))) {
+                    try expectEqual(@field(expected, fld_name), @field(actual, fld_name));
                     return;
                 }
             }
