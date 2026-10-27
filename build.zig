@@ -5,10 +5,10 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     // Expose this as a module that others can import
 
-    const zul_module = b.addModule("zul", .{
+        const zul_module = b.addModule("zul", .{
+        .root_source_file = b.path("src/zul.zig"),
         .target = target,
         .optimize = optimize,
-        .root_source_file = b.path("src/zul.zig"),
     });
 
     {
